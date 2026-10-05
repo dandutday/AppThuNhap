@@ -1,0 +1,100 @@
+/* =========================================================
+   theme.css — Màu sắc (design tokens), font, reset cơ bản
+   Phong cách: pastel, bo tròn, dễ thương
+   ========================================================= */
+:root {
+  --bg: #fff6f9;
+  --surface: #ffffff;
+  --surface-2: #fff0f5;
+  --border: #f6dce7;
+  --text: #3b2d40;
+  --muted: #8b7a91;
+
+  --primary: #ff6f9f;        /* hồng kẹo */
+  --primary-ink: #ffffff;
+  --primary-soft: #ffe3ee;
+  --money: #17a673;          /* xanh bạc hà đậm cho số tiền */
+  --expense: #e8505b;        /* đỏ san hô cho khoản chi */
+  --expense-soft: #ffe1e3;
+  --warn: #e08a1e;
+  --danger: #e5484d;
+
+  /* màu pastel cho icon KPI */
+  --pink-soft: #ffe1ec;   --pink-ink: #e2538a;
+  --mint-soft: #d9f6ea;   --mint-ink: #12935f;
+  --lilac-soft: #ece4ff;  --lilac-ink: #7c5ad9;
+  --peach-soft: #ffead6;  --peach-ink: #d27618;
+
+  --radius: 22px;
+  --radius-sm: 14px;
+  --shadow: 0 2px 0 rgba(255, 111, 159, .06), 0 8px 24px rgba(255, 111, 159, .08);
+  --font: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1620;
+    --surface: #251f2b;
+    --surface-2: #2f2736;
+    --border: #3d3345;
+    --text: #f6ebf3;
+    --muted: #b6a5bc;
+    --primary: #ff8db5;
+    --primary-ink: #2c0f1c;
+    --primary-soft: #4a2638;
+    --money: #55d9a5;
+    --expense: #ff7b84;
+    --expense-soft: #4a2228;
+    --pink-soft: #4a2638;  --pink-ink: #ff9cc0;
+    --mint-soft: #1f4135;  --mint-ink: #6fe0b3;
+    --lilac-soft: #362c55; --lilac-ink: #c3adff;
+    --peach-soft: #4a3320; --peach-ink: #ffbf80;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1620;
+  --surface: #251f2b;
+  --surface-2: #2f2736;
+  --border: #3d3345;
+  --text: #f6ebf3;
+  --muted: #b6a5bc;
+  --primary: #ff8db5;
+  --primary-ink: #2c0f1c;
+  --primary-soft: #4a2638;
+  --money: #55d9a5;
+  --expense: #ff7b84;
+  --expense-soft: #4a2228;
+  --pink-soft: #4a2638;  --pink-ink: #ff9cc0;
+  --mint-soft: #1f4135;  --mint-ink: #6fe0b3;
+  --lilac-soft: #362c55; --lilac-ink: #c3adff;
+  --peach-soft: #4a3320; --peach-ink: #ffbf80;
+  --shadow: none;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { margin: 0; line-height: 1.25; font-weight: 800; }
+h1 { font-size: 19px; }
+h2 { font-size: 21px; }
+h3 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+a { color: var(--primary); font-weight: 700; }
+.muted { color: var(--muted); }
+.small { font-size: 12px; margin: 0; }
+.money { color: var(--money); font-variant-numeric: tabular-nums; }
+
+/* Icon chung */
+.ic { width: 1.25em; height: 1.25em; flex-shrink: 0; vertical-align: -0.25em; }
+i[data-icon] { display: inline-flex; font-style: normal; }

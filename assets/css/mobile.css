@@ -1,0 +1,174 @@
+/* =========================================================
+   mobile.css — Giao diện điện thoại (≤ 640px)
+   • Header gọn: logo + tên trang đang xem + tài khoản (dính trên cùng)
+   • Thanh tab cố định ở đáy (.bottom-nav — phần tử riêng, KHÔNG nằm trong header)
+   • Nút "+" tròn nổi để thêm giao dịch
+   • Hộp thoại trượt lên từ đáy (bottom sheet)
+   • Chừa khoảng an toàn cho tai thỏ / thanh home (safe-area)
+   ========================================================= */
+@media (max-width: 640px) {
+  :root { --nav-h: 64px; }
+
+  /* Ô nhập ≥ 16px để iPhone không tự phóng to khi bấm vào */
+  input, select { font-size: 16px; }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    padding: 10px 14px;
+    padding-top: calc(10px + env(safe-area-inset-top));
+    gap: 10px;
+    flex-wrap: nowrap;
+    background: var(--surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .logo { width: 38px; height: 38px; border-radius: 13px; }
+  .logo .ic { width: 24px; height: 24px; }
+  .brand h1 { font-size: 13px; color: var(--muted); font-weight: 700; line-height: 1.1; }
+  .brand .brand-sub { display: none; }
+  .page-title { display: block; margin: 0; font-size: 20px; font-weight: 800; line-height: 1.2; }
+  .top-tabs { display: none; }
+  .account-btn { margin-left: auto; padding: 5px; }
+  .account-btn .account-name { display: none; }
+  .account-btn > .ic { margin: 0 4px; }
+
+  /* ---------- Thanh tab ở đáy ---------- */
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1.5px solid var(--border);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, .06);
+  }
+  .bottom-nav .tab {
+    flex-direction: column; justify-content: center; gap: 2px;
+    padding: 4px 2px; border-radius: 16px;
+    font-size: 11.5px; line-height: 1.2;
+  }
+  .bottom-nav .tab .ic {
+    width: 52px; height: 30px; padding: 3px 14px; box-sizing: border-box;
+    border-radius: 99px; transition: background .15s;
+  }
+  .bottom-nav .tab:hover { background: none; }
+  .bottom-nav .tab.active { background: none; color: var(--primary); }
+  .bottom-nav .tab.active .ic { background: var(--primary-soft); }
+
+  /* ---------- Nút + nổi ---------- */
+  #btnAdd {
+    position: fixed; z-index: 41;
+    right: 16px; bottom: calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));
+    width: 58px; height: 58px; padding: 0; border-radius: 20px;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+  #btnAdd .ic { width: 28px; height: 28px; }
+  #btnAdd .btn-label { display: none; }
+
+  /* ---------- Nội dung chung ---------- */
+  main {
+    padding: 12px 12px calc(var(--nav-h) + 92px + env(safe-area-inset-bottom));
+  }
+  .view { gap: 12px; }
+  .card { padding: 14px; border-radius: 20px; }
+  .card-head { margin-bottom: 10px; }
+  .card-head h3 { font-size: 15px; }
+
+  /* ---------- Tổng quan ---------- */
+  .period-bar { gap: 4px; }
+  .period-bar h2 { font-size: 18px; min-width: 150px; }
+
+  .balance-card { gap: 12px; }
+  .balance-value { font-size: 28px; }
+  .balance-split { gap: 8px; }
+  .split-item { padding: 10px; gap: 8px; border-radius: 14px; }
+  .split-ic { width: 30px; height: 30px; border-radius: 10px; }
+  .split-ic .ic { width: 17px; height: 17px; }
+  .split-item b { font-size: 15px; }
+  .split-item .kpi-sub { font-size: 11.5px; }
+
+  .kpis, .kpis.kpis-2 { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi { gap: 2px; }
+  .kpi-top { gap: 8px; }
+  .kpi-top .kpi-icon { width: 30px; height: 30px; border-radius: 10px; }
+  .kpi-top .kpi-icon .ic { width: 17px; height: 17px; }
+  .kpi-label { font-size: 12px; }
+  .kpi-value { font-size: 18px; }
+  .kpi-sub { font-size: 11.5px; }
+
+  .chart-legend { font-size: 12px; gap: 8px; }
+  .donut-wrap { gap: 12px; }
+  #donutChart { width: 140px; }
+  .legend { min-width: 0; width: 100%; }
+  .legend li { font-size: 13px; }
+
+  /* ---------- Danh sách giao dịch ---------- */
+  .tx-list li { gap: 10px; padding: 9px 2px; }
+  .tx-avatar { width: 38px; height: 38px; font-size: 18px; border-radius: 12px; }
+  .tx-title { font-size: 14.5px; }
+  .tx-amount { font-size: 14px; }
+  .tx-meta { font-size: 12px; }
+  .tx-list li.tx-group { padding: 12px 2px 2px; }
+
+  /* ---------- Tab Giao dịch: bộ lọc ---------- */
+  .filters { gap: 8px; }
+  .filters .seg { flex: 1 1 100%; display: grid; }
+  .filters .search-box { flex: 1 1 100%; }
+  .filters > input, .filters > select { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .filters > #fStatus { flex: 1 1 calc(60% - 4px); }
+  .filters > #fClear { flex: 1 1 calc(40% - 4px); }
+  .tx-summary h3 { font-size: 15px; }
+  .tx-sums { font-size: 14px; gap: 10px; }
+
+  /* ---------- Tab Danh mục ---------- */
+  .seg-wide { max-width: none; }
+  .seg-wide button { padding: 9px 8px; }
+  .row-form { gap: 8px; }
+  .row-form > select, .row-form > input[type="color"] { flex: none; }
+  .row-form input[type="text"] { flex: 1 1 0; min-width: 0; }
+  .row-form > .btn { flex: 1 1 100%; }
+  .source-list li { gap: 8px; }
+  .source-list .stat { font-size: 12px; }
+  .source-list input[type="color"] { width: 30px; height: 30px; }
+  .source-list .btn.icon.sm { width: 32px; height: 32px; }
+
+  /* ---------- Cài đặt ---------- */
+  .goal-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .goal-form .btn { grid-column: 1 / -1; }
+  .btn-row > .btn { flex: 1 1 auto; }
+  .seg-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .seg-buttons .btn { padding: 9px 4px; min-width: 0; gap: 4px; }
+
+  /* ---------- Hộp thoại dạng trượt từ đáy ---------- */
+  dialog {
+    width: 100%; max-width: 100%;
+    margin: auto 0 0;
+    max-height: 92dvh; overflow-y: auto;
+    border-radius: 26px 26px 0 0; border-bottom: 0;
+  }
+  dialog[open] { animation: sheet-up .25s cubic-bezier(.2, .8, .3, 1); }
+  .dialog-form { padding: 10px 16px calc(16px + env(safe-area-inset-bottom)); gap: 10px; }
+  .dialog-form::before {
+    content: ""; align-self: center; width: 40px; height: 5px; border-radius: 99px;
+    background: var(--border); margin-bottom: 2px;
+  }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .dialog-actions .btn { flex: 1; }
+  .dialog-actions .spacer { display: none; }
+  .quick-amounts { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .quick-amounts button { flex: none; }
+
+  /* Toast nằm trên thanh tab */
+  .toast { bottom: calc(var(--nav-h) + 18px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); }
+}
+
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+
+/* Màn hình rất nhỏ (iPhone SE, Android nhỏ) */
+@media (max-width: 360px) {
+  .balance-value { font-size: 24px; }
+  .split-item { flex-direction: column; }
+  .kpi-value { font-size: 16px; }
+  .bottom-nav .tab { font-size: 10.5px; }
+  .row-2 { grid-template-columns: 1fr; }
+}

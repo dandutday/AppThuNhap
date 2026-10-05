@@ -1,0 +1,39 @@
+/* =========================================================
+   layout.css — Bố cục trang: thanh trên, lưới, responsive
+   ========================================================= */
+.topbar {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1.5px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 15px;
+  background: var(--primary); color: var(--primary-ink);
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--primary) 35%, transparent);
+  transform: rotate(-6deg);
+}
+.logo .ic { width: 28px; height: 28px; }
+
+.tabs { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+
+main { max-width: 1180px; margin: 0 auto; padding: 24px; }
+.view { display: none; flex-direction: column; gap: 18px; animation: pop .25s ease; }
+.view.active { display: flex; }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.period-bar { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.period-bar h2 { min-width: 170px; text-align: center; }
+
+.kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.kpis.kpis-2 { grid-template-columns: 1fr 1fr; }
+.grid-2 { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+
+@media (max-width: 960px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
