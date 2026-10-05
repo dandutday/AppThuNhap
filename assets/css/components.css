@@ -326,3 +326,7 @@ code { font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-r
 
 /* Tiêu đề trang & thanh tab đáy chỉ dùng trên điện thoại (xem mobile.css) */
 .page-title, .bottom-nav { display: none; }
+
+/* Dòng nhỏ dẫn tới Chính sách / Điều khoản */
+.legal-note { margin: 0; text-align: center; font-size: 13px; color: var(--muted); }
+.legal-note a { font-weight: 700; }
