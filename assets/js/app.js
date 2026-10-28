@@ -9,6 +9,8 @@ const App = {
   lastType: 'expense',      // loại vừa nhập gần nhất → mặc định cho lần sau
   pickedSource: null,
   lastPicked: {},           // danh mục vừa chọn gần nhất theo từng loại
+  txWallet: 'cash',         // nguồn tiền đang chọn trong hộp thoại
+  lastWallet: 'cash',       // nguồn tiền vừa dùng gần nhất → mặc định cho lần sau
   donutType: 'expense',     // biểu đồ tròn đang xem thu hay chi
   listType: '',             // lọc loại ở tab Giao dịch ('' = tất cả)
   catType: 'expense',       // tab Danh mục đang xem thu hay chi
@@ -31,6 +33,12 @@ const TYPE = {
     notePh: 'VD: Ăn trưa, tiền điện, mua áo…',
     repeat: 'Lặp lại hàng tháng (vd tiền nhà): tự tạo khoản “sắp chi” các tháng sau',
   },
+};
+
+/** Nguồn tiền của giao dịch */
+const WALLET = {
+  cash: { name: 'Tiền mặt', icon: 'cash' },
+  bank: { name: 'Ngân hàng', icon: 'bank' },
 };
 
 /* ================= Khởi động ================= */
@@ -166,6 +174,15 @@ function renderDashboard() {
     : (expense > 0 ? 'Chưa có thu nhập tháng này' : 'Chưa có giao dịch tháng này');
   $('#kpiIncome').textContent = money(income);
   $('#kpiExpense').textContent = money(expense);
+
+  // --- Tiền đang có theo nguồn (cộng dồn mọi khoản đã nhận / đã chi, không theo tháng) ---
+  const done = Store.getTransactions().filter(t => t.status === 'received');
+  [['cash', '#kpiCash'], ['bank', '#kpiBank']].forEach(([w, sel]) => {
+    const mine = done.filter(t => t.wallet === w);
+    const net = sum(ofType(mine, 'income')) - sum(ofType(mine, 'expense'));
+    $(sel).textContent = (net < 0 ? '−' : '') + money(Math.abs(net));
+    $(sel).classList.toggle('neg', net < 0);
+  });
   setDelta($('#kpiIncomeDelta'), income, sum(ofType(prev, 'income')), prevYM, true);
   setDelta($('#kpiExpenseDelta'), expense, sum(ofType(prev, 'expense')), prevYM, false);
 
@@ -255,6 +272,7 @@ function txItem(t) {
     <div class="tx-main">
       <div class="tx-title">${escapeHtml(t.note || s.name)}</div>
       <div class="tx-meta">${escapeHtml(s.name)} · ${dateLabel(t.date)}
+        <span class="meta-ic" title="${WALLET[t.wallet].name}">${Icons.svg(WALLET[t.wallet].icon)}</span>
         ${t.seriesId ? `<span class="meta-ic" title="Lặp lại hàng tháng">${Icons.svg('repeat')}</span>` : ''}
         ${t.status === 'pending' ? `<span class="badge">${Icons.svg('clock')}${T.pending}</span>` : ''}
       </div>
@@ -269,6 +287,7 @@ function renderTransactions() {
   const m = $('#fMonth').value;
   const src = $('#fSource').value;
   const st = $('#fStatus').value;
+  const w = $('#fWallet').value;
   const type = App.listType;
   $$('#txTypeSeg button').forEach(b => b.classList.toggle('on', b.dataset.type === type));
 
@@ -277,6 +296,7 @@ function renderTransactions() {
     (!m || toYM(t.date) === m) &&
     (!src || t.sourceId === src) &&
     (!st || t.status === st) &&
+    (!w || t.wallet === w) &&
     (!q || (t.note + ' ' + Store.getSource(t.sourceId).name).toLowerCase().includes(q))
   ).sort(sortByDateDesc);
 
@@ -558,6 +578,14 @@ function setDialogType(type, keepSource = null) {
   renderSourcePicker();
 }
 
+function setDialogWallet(wallet) {
+  App.txWallet = wallet;
+  $$('#txWalletPick button').forEach(b => {
+    b.classList.toggle('on', b.dataset.wallet === wallet);
+    b.setAttribute('aria-checked', b.dataset.wallet === wallet);
+  });
+}
+
 /** Loại mặc định khi bấm "+": theo màn hình đang xem, nếu không thì theo lần nhập trước */
 function contextType() {
   if (App.view === 'transactions' && App.listType) return App.listType;
@@ -570,6 +598,7 @@ function openTxDialog(id = null, type = null) {
   const t = id ? Store.getTransactions().find(x => x.id === id) : null;
   App.editingId = t ? t.id : null;
   setDialogType(t ? t.type : (type || contextType()), t?.sourceId);
+  setDialogWallet(t ? t.wallet : App.lastWallet);
   $('#txAmount').value = t ? numberFmt.format(t.amount) : '';
   // Mặc định: ngày hôm nay, hoặc ngày 1 nếu đang xem tháng khác
   const today = todayISO();
@@ -602,10 +631,12 @@ function saveTx(e) {
     sourceId: App.pickedSource,
     date: $('#txDate').value || todayISO(),
     status: $('#txStatus').value,
+    wallet: App.txWallet,
     note: $('#txNote').value.trim(),
     seriesId,
   });
   App.lastType = type;
+  App.lastWallet = App.txWallet;
   App.lastPicked[type] = App.pickedSource;
   $('#txDialog').close();
   toast(old ? 'Đã cập nhật' : (type === 'income' ? 'Đã thêm khoản thu 🐷' : 'Đã thêm khoản chi 💸'));
@@ -614,11 +645,11 @@ function saveTx(e) {
 
 /* ================= CSV ================= */
 function exportCsv() {
-  const rows = [['Ngày', 'Loại', 'Danh mục', 'Số tiền', 'Trạng thái', 'Ghi chú', 'Lặp lại']];
+  const rows = [['Ngày', 'Loại', 'Danh mục', 'Số tiền', 'Nguồn tiền', 'Trạng thái', 'Ghi chú', 'Lặp lại']];
   [...Store.getTransactions()].sort((a, b) => a.date.localeCompare(b.date)).forEach(t => {
     const T = TYPE[t.type];
     rows.push([t.date, t.type === 'income' ? 'Thu' : 'Chi', Store.getSource(t.sourceId).name,
-      t.type === 'income' ? t.amount : -t.amount,
+      t.type === 'income' ? t.amount : -t.amount, WALLET[t.wallet].name,
       t.status === 'received' ? T.done : T.pending, t.note, t.seriesId ? 'Có' : '']);
   });
   const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
@@ -666,6 +697,10 @@ function bindEvents() {
     const b = e.target.closest('button[data-type]');
     if (b) setDialogType(b.dataset.type);
   });
+  $('#txWalletPick').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-wallet]');
+    if (b) setDialogWallet(b.dataset.wallet);
+  });
 
   // Bấm vào giao dịch để sửa
   ['#recentList', '#txList'].forEach(sel => {
@@ -681,9 +716,9 @@ function bindEvents() {
   });
 
   // Bộ lọc
-  ['#fSearch', '#fMonth', '#fSource', '#fStatus'].forEach(sel => $(sel).addEventListener('input', renderTransactions));
+  ['#fSearch', '#fMonth', '#fSource', '#fWallet', '#fStatus'].forEach(sel => $(sel).addEventListener('input', renderTransactions));
   $('#fClear').addEventListener('click', () => {
-    ['#fSearch', '#fMonth', '#fSource', '#fStatus'].forEach(sel => { $(sel).value = ''; });
+    ['#fSearch', '#fMonth', '#fSource', '#fWallet', '#fStatus'].forEach(sel => { $(sel).value = ''; });
     App.listType = '';
     renderSourceSelects();
     renderTransactions();

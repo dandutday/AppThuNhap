@@ -7,7 +7,7 @@
    state = {
      sources: [{ id, type:'income'|'expense', name, emoji, color, order }],   // danh mục thu / chi
      transactions: [{ id, type:'income'|'expense', amount, sourceId, date:'YYYY-MM-DD',
-                      status:'received'|'pending', note, seriesId|null }],
+                      status:'received'|'pending', wallet:'cash'|'bank', note, seriesId|null }],
      settings: { goal, budget }   // mục tiêu thu nhập & ngân sách chi tiêu mỗi tháng
    }
    status 'received' = đã nhận (thu) / đã chi (chi); 'pending' = chờ nhận / sắp chi
@@ -60,7 +60,7 @@ const Store = (() => {
     if (!t || !t.id || !/^\d{4}-\d{2}-\d{2}$/.test(t.date) || !(Number(t.amount) > 0)) return null;
     return {
       id: String(t.id), type: normType(t.type), amount: Number(t.amount), sourceId: String(t.sourceId), date: t.date,
-      status: t.status === 'pending' ? 'pending' : 'received',
+      status: t.status === 'pending' ? 'pending' : 'received', wallet: normWallet(t.wallet),
       note: String(t.note || ''), seriesId: t.seriesId || null,
     };
   }
@@ -73,6 +73,8 @@ const Store = (() => {
   }
   // Dữ liệu cũ (trước khi có khoản chi) không có type → coi là khoản thu
   const normType = (t) => (t === 'expense' ? 'expense' : 'income');
+  // Dữ liệu cũ (trước khi có nguồn tiền) → coi là tiền mặt
+  const normWallet = (w) => (w === 'bank' ? 'bank' : 'cash');
   const normSettings = (s) => ({ goal: Number(s?.goal) || 0, budget: Number(s?.budget) || 0 });
   const bySourceOrder = (a, b) => a.order - b.order;
 
@@ -360,23 +362,25 @@ const Store = (() => {
     const rnd = (a, b) => Math.round((a + Math.random() * (b - a)) / 10000) * 10000;
     const chance = (p) => Math.random() < p;
     const txs = [];
-    const add = (type, sourceId, amount, day, note, ym) => txs.push({ type, sourceId, amount, date: sameDayIn(ym, day), note });
+    // wallet mặc định 'bank' (lương, hoá đơn…); khoản lặt vặt dùng tiền mặt
+    const add = (type, sourceId, amount, day, note, ym, wallet = 'bank') =>
+      txs.push({ type, sourceId, amount, date: sameDayIn(ym, day), note, wallet });
 
     for (let k = 11; k >= 0; k--) {
       const ym = addMonths(nowYM, -k);
       // Thu
       add('income', 'salary', 18000000 + (k < 6 ? 2000000 : 0), 5, `Lương ${monthLabel(ym).toLowerCase()}`, ym);
       if (chance(.7)) add('income', 'freelance', rnd(2e6, 9e6), 14, 'Dự án thiết kế website', ym);
-      if (chance(.5)) add('income', 'business', rnd(5e5, 3e6), 20, 'Bán hàng online', ym);
+      if (chance(.5)) add('income', 'business', rnd(5e5, 3e6), 20, 'Bán hàng online', ym, 'cash');
       if (chance(.4)) add('income', 'invest', rnd(3e5, 2e6), 25, 'Lãi tiết kiệm', ym);
       if (ym.endsWith('-01') || ym.endsWith('-12')) add('income', 'bonus', rnd(5e6, 15e6), 28, 'Thưởng Tết', ym);
       // Chi
       add('expense', 'exp_home', 5500000, 1, 'Tiền nhà', ym);
       add('expense', 'exp_bills', rnd(7e5, 1.6e6), 8, 'Điện, nước, internet', ym);
-      [3, 11, 19, 26].forEach(d => add('expense', 'exp_food', rnd(8e5, 1.8e6), d, chance(.5) ? 'Đi chợ' : 'Ăn ngoài', ym));
-      add('expense', 'exp_transport', rnd(3e5, 8e5), 12, 'Xăng xe', ym);
+      [3, 11, 19, 26].forEach(d => add('expense', 'exp_food', rnd(8e5, 1.8e6), d, chance(.5) ? 'Đi chợ' : 'Ăn ngoài', ym, chance(.6) ? 'cash' : 'bank'));
+      add('expense', 'exp_transport', rnd(3e5, 8e5), 12, 'Xăng xe', ym, 'cash');
       if (chance(.6)) add('expense', 'exp_shopping', rnd(3e5, 3e6), 17, 'Mua sắm online', ym);
-      if (chance(.6)) add('expense', 'exp_fun', rnd(2e5, 1.5e6), 22, 'Xem phim, cà phê', ym);
+      if (chance(.6)) add('expense', 'exp_fun', rnd(2e5, 1.5e6), 22, 'Xem phim, cà phê', ym, 'cash');
       if (chance(.25)) add('expense', 'exp_health', rnd(2e5, 1.2e6), 15, 'Khám bệnh, thuốc', ym);
       if (chance(.3)) add('expense', 'exp_edu', rnd(5e5, 2e6), 10, 'Khoá học online', ym);
     }

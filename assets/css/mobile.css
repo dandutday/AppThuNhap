@@ -115,8 +115,7 @@
   .filters .seg { flex: 1 1 100%; display: grid; }
   .filters .search-box { flex: 1 1 100%; }
   .filters > input, .filters > select { flex: 1 1 calc(50% - 4px); min-width: 0; }
-  .filters > #fStatus { flex: 1 1 calc(60% - 4px); }
-  .filters > #fClear { flex: 1 1 calc(40% - 4px); }
+  .filters > #fClear { flex: 1 1 100%; }
   .tx-summary h3 { font-size: 15px; }
   .tx-sums { font-size: 14px; gap: 10px; }
 

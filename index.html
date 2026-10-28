@@ -77,6 +77,11 @@
             </div>
           </div>
         </div>
+        <!-- Tiền đang có theo nguồn: cộng dồn mọi khoản đã nhận / đã chi -->
+        <div class="wallet-row" title="Cộng dồn tất cả khoản đã nhận trừ đã chi (không tính khoản chờ)">
+          <span class="wallet-item"><i data-icon="cash"></i>Tiền mặt <b id="kpiCash">0 ₫</b></span>
+          <span class="wallet-item"><i data-icon="bank"></i>Ngân hàng <b id="kpiBank">0 ₫</b></span>
+        </div>
       </div>
 
       <div class="kpis kpis-2">
@@ -140,6 +145,11 @@
         <label class="search-box"><i data-icon="search"></i><input type="search" id="fSearch" placeholder="Tìm theo ghi chú, danh mục…"></label>
         <input type="month" id="fMonth" title="Lọc theo tháng">
         <select id="fSource"><option value="">Tất cả danh mục</option></select>
+        <select id="fWallet">
+          <option value="">Mọi nguồn tiền</option>
+          <option value="cash">Tiền mặt</option>
+          <option value="bank">Ngân hàng</option>
+        </select>
         <select id="fStatus">
           <option value="">Mọi trạng thái</option>
           <option value="received">Đã nhận / đã chi</option>
@@ -248,6 +258,11 @@
         <button type="button" data-add="500000">+500k</button>
         <button type="button" data-add="1000000">+1tr</button>
         <button type="button" data-add="5000000">+5tr</button>
+      </div>
+      <label id="txWalletLabel">Nguồn tiền</label>
+      <div class="seg type-seg wallet-seg" id="txWalletPick" role="radiogroup" aria-labelledby="txWalletLabel">
+        <button type="button" role="radio" data-wallet="cash" class="on"><i data-icon="cash"></i>Tiền mặt</button>
+        <button type="button" role="radio" data-wallet="bank"><i data-icon="bank"></i>Ngân hàng</button>
       </div>
       <label id="txSourceLabel">Danh mục</label>
       <div id="txSourcePicker" class="source-picker" role="radiogroup"></div>

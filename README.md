@@ -3,6 +3,8 @@
 Web quản lý **thu nhập và chi tiêu** viết bằng HTML, CSS và JS thuần, không cần build. Có số dư, tỷ lệ tiết kiệm, ngân sách chi, mục tiêu thu, biểu đồ thu – chi và cơ cấu theo danh mục.
 
 > **Nâng cấp từ bản chỉ có thu nhập:** chạy lại `supabase/schema.sql` một lần để thêm cột `type` và `budget`. Dữ liệu cũ được giữ nguyên và tự thành khoản thu.
+>
+> **Thêm nguồn tiền (tiền mặt / ngân hàng):** chạy lại `supabase/schema.sql` một lần để thêm cột `wallet`. Giao dịch cũ được tính là tiền mặt.
 
 - **Chưa đăng nhập**: dữ liệu lưu trong trình duyệt (localStorage).
 - **Đăng nhập**: dữ liệu lưu trên **Supabase** (Postgres), dùng được trên nhiều thiết bị.

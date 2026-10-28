@@ -3,7 +3,7 @@
    Bảng (xem supabase/schema.sql):
      profiles     (user_id, goal, budget)
      sources      (user_id, id, type, name, emoji, color, sort_order)        ← danh mục thu/chi
-     transactions (user_id, id, type, amount, source_id, date, status, note, series_id)
+     transactions (user_id, id, type, amount, source_id, date, status, note, series_id, wallet)
    ========================================================= */
 const Cloud = (() => {
   const configured = typeof SUPABASE_CONFIG !== 'undefined' && !!SUPABASE_CONFIG.url && !!SUPABASE_CONFIG.anonKey;
@@ -71,7 +71,7 @@ const Cloud = (() => {
       '42501': 'Không có quyền truy cập dữ liệu (kiểm tra RLS trong schema.sql).',
       '42P01': 'Chưa có bảng dữ liệu: hãy chạy file supabase/schema.sql trong SQL Editor.',
       PGRST205: 'Chưa có bảng dữ liệu: hãy chạy file supabase/schema.sql trong SQL Editor.',
-      // Thiếu cột mới (type, budget) → database là bản cũ
+      // Thiếu cột mới (type, budget, wallet) → database là bản cũ
       '42703': 'Database chưa cập nhật: hãy chạy lại file supabase/schema.sql trong SQL Editor.',
       PGRST204: 'Database chưa cập nhật: hãy chạy lại file supabase/schema.sql trong SQL Editor.',
     };
@@ -83,11 +83,11 @@ const Cloud = (() => {
   /* ---------- Chuyển đổi dòng DB ↔ object trong app ---------- */
   const toTxRow = (t, uid) => ({
     user_id: uid, id: t.id, type: t.type, amount: t.amount, source_id: t.sourceId, date: t.date,
-    status: t.status, note: t.note || '', series_id: t.seriesId || null,
+    status: t.status, note: t.note || '', series_id: t.seriesId || null, wallet: t.wallet,
   });
   const fromTxRow = (r) => ({
     id: r.id, type: r.type, amount: Number(r.amount), sourceId: r.source_id, date: r.date,
-    status: r.status, note: r.note, seriesId: r.series_id,
+    status: r.status, note: r.note, seriesId: r.series_id, wallet: r.wallet,
   });
   const toSrcRow = (s, uid) => ({
     user_id: uid, id: s.id, type: s.type, name: s.name, emoji: s.emoji, color: s.color, sort_order: s.order || 0,
