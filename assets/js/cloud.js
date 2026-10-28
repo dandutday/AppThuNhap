@@ -74,6 +74,8 @@ const Cloud = (() => {
       // Thiếu cột mới (type, budget, wallet) → database là bản cũ
       '42703': 'Database chưa cập nhật: hãy chạy lại file supabase/schema.sql trong SQL Editor.',
       PGRST204: 'Database chưa cập nhật: hãy chạy lại file supabase/schema.sql trong SQL Editor.',
+      // Vi phạm check (vd type = 'transfer' trên database chưa cập nhật)
+      '23514': 'Database chưa cập nhật: hãy chạy lại file supabase/schema.sql trong SQL Editor.',
     };
     if (byCode[err?.code]) return byCode[err.code];
     if (err instanceof TypeError || /fetch/i.test(err?.message || '')) return 'Không kết nối được tới Supabase (kiểm tra mạng).';

@@ -6,11 +6,12 @@
 
    state = {
      sources: [{ id, type:'income'|'expense', name, emoji, color, order }],   // danh mục thu / chi
-     transactions: [{ id, type:'income'|'expense', amount, sourceId, date:'YYYY-MM-DD',
+     transactions: [{ id, type:'income'|'expense'|'transfer', amount, sourceId, date:'YYYY-MM-DD',
                       status:'received'|'pending', wallet:'cash'|'bank', note, seriesId|null }],
      settings: { goal, budget }   // mục tiêu thu nhập & ngân sách chi tiêu mỗi tháng
    }
    status 'received' = đã nhận (thu) / đã chi (chi); 'pending' = chờ nhận / sắp chi
+   type 'transfer' = chuyển tiền: wallet là ví chuyển đi, tiền vào ví còn lại; sourceId = 'transfer'
    ========================================================= */
 const Store = (() => {
   const KEY = 'heodat.income.v1';
@@ -59,7 +60,7 @@ const Store = (() => {
   function normTx(t) {
     if (!t || !t.id || !/^\d{4}-\d{2}-\d{2}$/.test(t.date) || !(Number(t.amount) > 0)) return null;
     return {
-      id: String(t.id), type: normType(t.type), amount: Number(t.amount), sourceId: String(t.sourceId), date: t.date,
+      id: String(t.id), type: normTxType(t.type), amount: Number(t.amount), sourceId: String(t.sourceId), date: t.date,
       status: t.status === 'pending' ? 'pending' : 'received', wallet: normWallet(t.wallet),
       note: String(t.note || ''), seriesId: t.seriesId || null,
     };
@@ -73,6 +74,8 @@ const Store = (() => {
   }
   // Dữ liệu cũ (trước khi có khoản chi) không có type → coi là khoản thu
   const normType = (t) => (t === 'expense' ? 'expense' : 'income');
+  // Giao dịch có thêm loại 'transfer' (danh mục thì không)
+  const normTxType = (t) => (t === 'transfer' ? 'transfer' : normType(t));
   // Dữ liệu cũ (trước khi có nguồn tiền) → coi là tiền mặt
   const normWallet = (w) => (w === 'bank' ? 'bank' : 'cash');
   const normSettings = (s) => ({ goal: Number(s?.goal) || 0, budget: Number(s?.budget) || 0 });
@@ -264,7 +267,8 @@ const Store = (() => {
   /* ---------- Danh mục thu / chi ---------- */
   /** getSources() → tất cả; getSources('expense') → chỉ danh mục chi */
   const getSources = (type) => (type ? state.sources.filter(s => s.type === type) : state.sources);
-  const getSource = (id) => state.sources.find(s => s.id === id)
+  const TRANSFER_SRC = { id: 'transfer', type: 'transfer', name: 'Chuyển tiền', emoji: '🔁', color: '#a7b4c6' };
+  const getSource = (id) => (id === 'transfer' ? TRANSFER_SRC : state.sources.find(s => s.id === id))
     || { id, type: 'income', name: 'Không rõ', emoji: '❔', color: '#a7b4c6' };
 
   function addSource(src) {
@@ -383,6 +387,8 @@ const Store = (() => {
       if (chance(.6)) add('expense', 'exp_fun', rnd(2e5, 1.5e6), 22, 'Xem phim, cà phê', ym, 'cash');
       if (chance(.25)) add('expense', 'exp_health', rnd(2e5, 1.2e6), 15, 'Khám bệnh, thuốc', ym);
       if (chance(.3)) add('expense', 'exp_edu', rnd(5e5, 2e6), 10, 'Khoá học online', ym);
+      // Rút tiền mặt từ ngân hàng
+      add('transfer', 'transfer', 5000000, 6, 'Rút ATM', ym, 'bank');
     }
     const today = todayISO();
     txs.forEach(t => {
