@@ -49,6 +49,12 @@ alter table public.transactions add column if not exists type text not null defa
 
 create index if not exists transactions_user_type_date_idx on public.transactions (user_id, type, date desc);
 
+-- ---------------------------------------------------------
+-- Cập nhật v3: nguồn tiền của giao dịch (tiền mặt / ngân hàng)
+-- (dữ liệu cũ tự nhận wallet = 'cash')
+-- ---------------------------------------------------------
+alter table public.transactions add column if not exists wallet text not null default 'cash' check (wallet in ('cash', 'bank'));
+
 -- Báo PostgREST (API của Supabase) nạp lại cấu trúc bảng ngay
 notify pgrst, 'reload schema';
 

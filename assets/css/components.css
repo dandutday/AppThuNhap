@@ -266,6 +266,11 @@ code { font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-r
 .split-ic .ic { width: 20px; height: 20px; }
 .split-item.income .split-ic { background: var(--mint-soft); color: var(--mint-ink); }
 .split-item.expense .split-ic { background: var(--expense-soft); color: var(--expense); }
+.wallet-row { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 12px; border-top: 1.5px dashed var(--border); }
+.wallet-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 600; }
+.wallet-item .ic { width: 18px; height: 18px; }
+.wallet-item b { color: var(--text); font-weight: 800; font-variant-numeric: tabular-nums; }
+.wallet-item b.neg { color: var(--expense); }
 
 .kpi-top { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 .kpi-top .kpi-icon { margin: 0; width: 36px; height: 36px; border-radius: 12px; }
@@ -300,6 +305,8 @@ code { font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-r
 /* Hộp thoại: nút Thu/Chi to, số tiền đổi màu theo loại */
 .type-seg { display: grid; }
 .type-seg button { padding: 10px 14px; font-size: 15px; }
+.wallet-seg button { padding: 7px 14px; font-size: 14px; }
+.wallet-seg button.on { color: var(--lilac-ink); }
 #txDialog[data-type="expense"] #txAmount { color: var(--expense); }
 #txDialog[data-type="income"] #txAmount { color: var(--money); }
 
