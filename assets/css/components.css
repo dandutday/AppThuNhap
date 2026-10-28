@@ -134,6 +134,7 @@ input[type="color"] { padding: 3px; width: 44px; height: 42px; cursor: pointer; 
 .tx-amount { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--money); white-space: nowrap; }
 .amount-income { color: var(--money); font-weight: 800; font-variant-numeric: tabular-nums; }
 .amount-expense { color: var(--expense); font-weight: 800; font-variant-numeric: tabular-nums; }
+.amount-transfer { color: var(--lilac-ink); font-weight: 800; font-variant-numeric: tabular-nums; }
 .badge {
   display: inline-flex; align-items: center; gap: 3px;
   font-size: 11px; font-weight: 700; padding: 1px 8px 1px 5px; border-radius: 99px;
@@ -305,6 +306,11 @@ code { font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-r
 /* Hộp thoại: nút Thu/Chi to, số tiền đổi màu theo loại */
 .type-seg { display: grid; }
 .type-seg button { padding: 10px 14px; font-size: 15px; }
+.seg button[data-type="transfer"].on { color: var(--lilac-ink); }
+#txDialog[data-type="transfer"] #txAmount { color: var(--lilac-ink); }
+#txDialog[data-type="transfer"] #txSourceLabel,
+#txDialog[data-type="transfer"] #txSourcePicker { display: none; }
+#txTransferHint { margin: -4px 0 0; }
 .wallet-seg button { padding: 7px 14px; font-size: 14px; }
 .wallet-seg button.on { color: var(--lilac-ink); }
 #txDialog[data-type="expense"] #txAmount { color: var(--expense); }

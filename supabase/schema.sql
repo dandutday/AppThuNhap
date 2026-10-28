@@ -55,6 +55,13 @@ create index if not exists transactions_user_type_date_idx on public.transaction
 -- ---------------------------------------------------------
 alter table public.transactions add column if not exists wallet text not null default 'cash' check (wallet in ('cash', 'bank'));
 
+-- ---------------------------------------------------------
+-- Cập nhật v4: CHUYỂN TIỀN giữa tiền mặt ↔ ngân hàng
+-- type = 'transfer', wallet = ví chuyển đi (tiền vào ví còn lại), source_id = 'transfer'
+-- ---------------------------------------------------------
+alter table public.transactions drop constraint if exists transactions_type_check;
+alter table public.transactions add constraint transactions_type_check check (type in ('income', 'expense', 'transfer'));
+
 -- Báo PostgREST (API của Supabase) nạp lại cấu trúc bảng ngay
 notify pgrst, 'reload schema';
 

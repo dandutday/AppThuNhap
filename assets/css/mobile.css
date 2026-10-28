@@ -156,6 +156,8 @@
   .dialog-actions .spacer { display: none; }
   .quick-amounts { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
   .quick-amounts button { flex: none; }
+  /* 3 nút Chi / Thu / Chuyển tiền phải vừa một hàng */
+  .type-seg button { padding: 9px 6px; font-size: 14px; gap: 4px; }
 
   /* Toast nằm trên thanh tab */
   .toast { bottom: calc(var(--nav-h) + 18px + env(safe-area-inset-bottom)); max-width: calc(100vw - 32px); }

@@ -33,6 +33,13 @@ const TYPE = {
     notePh: 'VD: Ăn trưa, tiền điện, mua áo…',
     repeat: 'Lặp lại hàng tháng (vd tiền nhà): tự tạo khoản “sắp chi” các tháng sau',
   },
+  // Chuyển giữa 2 ví: không tính vào thu / chi, chỉ đổi số dư từng ví
+  transfer: {
+    sign: '', cls: 'amount-transfer', name: 'chuyển tiền', cat: '',
+    done: 'Đã chuyển', pending: 'Sắp chuyển', emptyMonth: '',
+    notePh: 'VD: Rút ATM, nộp tiền vào tài khoản…',
+    repeat: 'Lặp lại hàng tháng: tự tạo khoản “sắp chuyển” các tháng sau',
+  },
 };
 
 /** Nguồn tiền của giao dịch */
@@ -40,6 +47,8 @@ const WALLET = {
   cash: { name: 'Tiền mặt', icon: 'cash' },
   bank: { name: 'Ngân hàng', icon: 'bank' },
 };
+/** Ví nhận tiền của một khoản chuyển (chỉ có 2 ví nên là ví còn lại) */
+const otherWallet = (w) => (w === 'cash' ? 'bank' : 'cash');
 
 /* ================= Khởi động ================= */
 document.addEventListener('DOMContentLoaded', () => {
@@ -179,7 +188,9 @@ function renderDashboard() {
   const done = Store.getTransactions().filter(t => t.status === 'received');
   [['cash', '#kpiCash'], ['bank', '#kpiBank']].forEach(([w, sel]) => {
     const mine = done.filter(t => t.wallet === w);
-    const net = sum(ofType(mine, 'income')) - sum(ofType(mine, 'expense'));
+    const transfers = ofType(done, 'transfer');
+    const net = sum(ofType(mine, 'income')) - sum(ofType(mine, 'expense'))
+      + sum(transfers.filter(t => t.wallet !== w)) - sum(transfers.filter(t => t.wallet === w));
     $(sel).textContent = (net < 0 ? '−' : '') + money(Math.abs(net));
     $(sel).classList.toggle('neg', net < 0);
   });
@@ -267,12 +278,14 @@ function emptyState(withCta) {
 function txItem(t) {
   const s = Store.getSource(t.sourceId);
   const T = TYPE[t.type];
+  const isTransfer = t.type === 'transfer';
+  const where = isTransfer ? `${WALLET[t.wallet].name} → ${WALLET[otherWallet(t.wallet)].name}` : s.name;
   return `<li data-id="${t.id}" tabindex="0">
     <span class="tx-avatar" style="--c:${s.color}">${s.emoji}</span>
     <div class="tx-main">
       <div class="tx-title">${escapeHtml(t.note || s.name)}</div>
-      <div class="tx-meta">${escapeHtml(s.name)} · ${dateLabel(t.date)}
-        <span class="meta-ic" title="${WALLET[t.wallet].name}">${Icons.svg(WALLET[t.wallet].icon)}</span>
+      <div class="tx-meta">${escapeHtml(where)} · ${dateLabel(t.date)}
+        ${isTransfer ? '' : `<span class="meta-ic" title="${WALLET[t.wallet].name}">${Icons.svg(WALLET[t.wallet].icon)}</span>`}
         ${t.seriesId ? `<span class="meta-ic" title="Lặp lại hàng tháng">${Icons.svg('repeat')}</span>` : ''}
         ${t.status === 'pending' ? `<span class="badge">${Icons.svg('clock')}${T.pending}</span>` : ''}
       </div>
@@ -304,8 +317,8 @@ function renderTransactions() {
   $('#txCount').textContent = `${list.length} giao dịch`;
   $('#txSumIncome').textContent = '+' + money(inc);
   $('#txSumExpense').textContent = '−' + money(exp);
-  $('#txSumIncome').hidden = type === 'expense';
-  $('#txSumExpense').hidden = type === 'income';
+  $('#txSumIncome').hidden = !!type && type !== 'income';
+  $('#txSumExpense').hidden = !!type && type !== 'expense';
 
   if (!list.length) {
     $('#txList').innerHTML = Store.getTransactions().length
@@ -569,6 +582,8 @@ function setDialogType(type, keepSource = null) {
   $('#txStatus').options[1].textContent = T.pending;
   $('#txNote').placeholder = T.notePh;
   $('#txRecurringText').textContent = T.repeat;
+  $('#txWalletLabel').textContent = type === 'transfer' ? 'Chuyển từ' : 'Nguồn tiền';
+  updateTransferHint();
 
   const cats = Store.getSources(type);
   const exists = (id) => id && cats.some(s => s.id === id);
@@ -584,6 +599,14 @@ function setDialogWallet(wallet) {
     b.classList.toggle('on', b.dataset.wallet === wallet);
     b.setAttribute('aria-checked', b.dataset.wallet === wallet);
   });
+  updateTransferHint();
+}
+
+/** Chuyển tiền: ghi rõ tiền đi từ ví nào sang ví nào */
+function updateTransferHint() {
+  const hint = $('#txTransferHint');
+  hint.hidden = App.txType !== 'transfer';
+  hint.textContent = `Tiền sẽ chuyển từ ${WALLET[App.txWallet].name} sang ${WALLET[otherWallet(App.txWallet)].name}.`;
 }
 
 /** Loại mặc định khi bấm "+": theo màn hình đang xem, nếu không thì theo lần nhập trước */
@@ -615,9 +638,9 @@ function saveTx(e) {
   e.preventDefault();
   const amount = parseMoney($('#txAmount').value);
   if (!amount) { toast('Số tiền phải lớn hơn 0'); $('#txAmount').focus(); return; }
-  if (!App.pickedSource) { toast('Hãy chọn danh mục'); return; }
-
   const type = App.txType;
+  if (type !== 'transfer' && !App.pickedSource) { toast('Hãy chọn danh mục'); return; }
+
   const old = App.editingId ? Store.getTransactions().find(x => x.id === App.editingId) : null;
   const recurring = $('#txRecurring').checked;
   let seriesId = old?.seriesId || null;
@@ -628,18 +651,22 @@ function saveTx(e) {
     id: old ? old.id : uid(),
     type,
     amount,
-    sourceId: App.pickedSource,
+    sourceId: type === 'transfer' ? 'transfer' : App.pickedSource,
     date: $('#txDate').value || todayISO(),
     status: $('#txStatus').value,
     wallet: App.txWallet,
     note: $('#txNote').value.trim(),
     seriesId,
   });
-  App.lastType = type;
-  App.lastWallet = App.txWallet;
-  App.lastPicked[type] = App.pickedSource;
+  // Chuyển tiền thỉnh thoảng mới dùng → không lấy làm mặc định cho lần sau
+  if (type !== 'transfer') {
+    App.lastType = type;
+    App.lastWallet = App.txWallet;
+    App.lastPicked[type] = App.pickedSource;
+  }
   $('#txDialog').close();
-  toast(old ? 'Đã cập nhật' : (type === 'income' ? 'Đã thêm khoản thu 🐷' : 'Đã thêm khoản chi 💸'));
+  const added = { income: 'Đã thêm khoản thu 🐷', expense: 'Đã thêm khoản chi 💸', transfer: 'Đã chuyển tiền 🔁' };
+  toast(old ? 'Đã cập nhật' : added[type]);
   renderAll();
 }
 
@@ -648,8 +675,10 @@ function exportCsv() {
   const rows = [['Ngày', 'Loại', 'Danh mục', 'Số tiền', 'Nguồn tiền', 'Trạng thái', 'Ghi chú', 'Lặp lại']];
   [...Store.getTransactions()].sort((a, b) => a.date.localeCompare(b.date)).forEach(t => {
     const T = TYPE[t.type];
-    rows.push([t.date, t.type === 'income' ? 'Thu' : 'Chi', Store.getSource(t.sourceId).name,
-      t.type === 'income' ? t.amount : -t.amount, WALLET[t.wallet].name,
+    const isTransfer = t.type === 'transfer';
+    rows.push([t.date, { income: 'Thu', expense: 'Chi', transfer: 'Chuyển' }[t.type], Store.getSource(t.sourceId).name,
+      t.type === 'expense' ? -t.amount : t.amount,
+      isTransfer ? `${WALLET[t.wallet].name} → ${WALLET[otherWallet(t.wallet)].name}` : WALLET[t.wallet].name,
       t.status === 'received' ? T.done : T.pending, t.note, t.seriesId ? 'Có' : '']);
   });
   const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');

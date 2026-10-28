@@ -141,6 +141,7 @@
           <button data-type="" class="on">Tất cả</button>
           <button data-type="income">Thu</button>
           <button data-type="expense">Chi</button>
+          <button data-type="transfer">Chuyển</button>
         </div>
         <label class="search-box"><i data-icon="search"></i><input type="search" id="fSearch" placeholder="Tìm theo ghi chú, danh mục…"></label>
         <input type="month" id="fMonth" title="Lọc theo tháng">
@@ -248,6 +249,7 @@
       <div class="seg type-seg" id="txTypePick" role="radiogroup">
         <button type="button" data-type="expense" class="on"><i data-icon="cart"></i>Khoản chi</button>
         <button type="button" data-type="income"><i data-icon="coin"></i>Khoản thu</button>
+        <button type="button" data-type="transfer"><i data-icon="swap"></i>Chuyển tiền</button>
       </div>
       <label>Số tiền (₫)
         <input type="text" inputmode="numeric" id="txAmount" required placeholder="0" autocomplete="off" data-money>
@@ -260,6 +262,8 @@
         <button type="button" data-add="5000000">+5tr</button>
       </div>
       <label id="txWalletLabel">Nguồn tiền</label>
+      <!-- Chuyển tiền: nút đang chọn là ví chuyển đi -->
+      <p class="muted small-text" id="txTransferHint" hidden></p>
       <div class="seg type-seg wallet-seg" id="txWalletPick" role="radiogroup" aria-labelledby="txWalletLabel">
         <button type="button" role="radio" data-wallet="cash" class="on"><i data-icon="cash"></i>Tiền mặt</button>
         <button type="button" role="radio" data-wallet="bank"><i data-icon="bank"></i>Ngân hàng</button>

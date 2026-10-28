@@ -34,6 +34,7 @@ const Icons = (() => {
     wallet: '<path d="M17.5 8V6.5A1.5 1.5 0 0 0 16 5H6.5a2.5 2.5 0 0 0 0 5"/><path d="M4 7.5v9A2.5 2.5 0 0 0 6.5 19H18a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 18 10H6.5"/><circle cx="15.8" cy="14.5" r=".9" fill="currentColor"/>',
     cash: '<rect x="3" y="6.5" width="18" height="11" rx="2.5"/><circle cx="12" cy="12" r="2.3"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/>',
     bank: '<path d="M4 9.5 12 5l8 4.5"/><path d="M6 10.5v6M10 10.5v6M14 10.5v6M18 10.5v6"/><path d="M4 19.5h16"/>',
+    swap: '<path d="M16.5 4.5l3 3-3 3"/><path d="M19.5 7.5h-13"/><path d="M7.5 13.5l-3 3 3 3"/><path d="M4.5 16.5h13"/>',
     tag: '<path d="M4 12.3V5.5A1.5 1.5 0 0 1 5.5 4h6.8a1.5 1.5 0 0 1 1 .4l6.4 6.4a1.5 1.5 0 0 1 0 2.2l-6.6 6.6a1.5 1.5 0 0 1-2.2 0l-6.4-6.4a1.5 1.5 0 0 1-.5-.9z"/><circle cx="8.5" cy="8.5" r="1.3"/>',
     target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
     user:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5.5 19.5a6.5 6.5 0 0 1 13 0"/>',
